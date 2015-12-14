@@ -15,14 +15,14 @@ class JsonEncoder(json.JSONEncoder):
 
 
 class HessianObject(object):
-    def __init__(self, _class, val):
+    def __init__(self, _class, attrs):
         self._class = _class
-        self.val = val
+        self.attrs = attrs
 
     def representation(self):
         return {
-            'class': self._class,
-            'body': self.val
+            '_class': self._class,
+            'attrs': self.attrs,
         }
 
     def __str__(self):
