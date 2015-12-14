@@ -36,7 +36,7 @@ setup(
     description='an implementation for hessian2',
     long_description=LONG_DESCRIPTION,
     author='WKPlus',
-    url='https://github.com/WKPlus/pyhessian.git',
+    url='https://github.com/WKPlus/pyhessian2.git',
     license='MIT',
     author_email='qifa.zhao@gmail.com',
     version=VERSION,
