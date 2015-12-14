@@ -9,10 +9,9 @@ LONG_DESCRIPTION = '''
 pyhessian2 is implemented for serialize and deserialize data in hessian2 protocol.
 
 Usage
-
-Encoding
 -----
 
+    >>> # encoding
     >>> from pyhessian2 import HessianObject, Encoder
     >>> attrs = {
             "name": "xx",
@@ -23,9 +22,7 @@ Encoding
     >>> print "%r" % data
 
 
-Decoding
------
-
+    >>> # decoding
     >>> from pyhessian2 import Decoder
     >>> data = ...  # a hessian bytes data
     >>> obj = Decoder().decoder(data)  # get a Hessianobject instance
