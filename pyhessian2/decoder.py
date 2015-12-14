@@ -50,8 +50,8 @@ class Decoder(object):
             'O': self.decode_object,
         }
 
-    def decode(self, pos, buf):
-        return self._decode(pos, buf)[1]
+    def decode(self, buf):
+        return self._decode(0, buf)[1]
 
     def _decode(self, pos, buf):
         tag = buf[pos]
