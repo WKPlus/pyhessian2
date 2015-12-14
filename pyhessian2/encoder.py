@@ -306,15 +306,15 @@ class Encoder(object):
 
     def encode_object_class(self, val):
         data = []
-        _class, val = val._class, val.val
+        _class, attrs = val._class, val.attrs
         if _class in self._classes:
             return self._classes.index(_class), data
 
         data.append('O')
         data.append(self.encode_string(_class))
-        length = len(val)
+        length = len(attrs)
         data.append(self.encode_int(length))
-        for k in val.iterkeys():
+        for k in attrs.iterkeys():
             data.append(self.encode_string(k))
         self._classes.append(_class)
         return len(self._classes) - 1, data
@@ -322,8 +322,8 @@ class Encoder(object):
     def encode_object(self, val):
         ref_id, data = self.encode_object_class(val)
         data.append('o')
-        val = val.val
+        attrs = val.attrs
         data.append(self.encode_int(ref_id))
-        for v in val.itervalues():
+        for v in attrs.itervalues():
             data.append(self.encode(v))
         return "".join(data)
