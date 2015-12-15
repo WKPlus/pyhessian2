@@ -233,7 +233,6 @@ class Decoder(object):
             pos, subdata = self.decode_string(pos, buf)
             return pos, data+subdata
         else:
-            print '%r'%buf[pos-5:pos+5]
             raise Exception("decode string error, unknown tag: %r" % tag)
 
     def decode_untyped_map(self, pos, buf):
@@ -297,10 +296,8 @@ class Decoder(object):
 
             values = []
             field_num = self.hessian_obj_factory.object_field_num(ref)
-            print '>>>>>>>>>>>>>>>>>', ref, field_num
             for i in xrange(field_num):
                 pos, value = self._decode(pos, buf)
-                print i, value
                 values.append(value)
             return pos, self.hessian_obj_factory.create_instance(ref, values)
         else:
