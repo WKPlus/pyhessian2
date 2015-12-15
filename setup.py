@@ -3,7 +3,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 LONG_DESCRIPTION = '''
 pyhessian2 is implemented for serialize and deserialize data in hessian2 protocol.

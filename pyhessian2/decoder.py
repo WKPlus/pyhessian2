@@ -7,6 +7,8 @@ According to http://hessian.caucho.com/doc/hessian-serialization.html.
 '''
 
 from struct import unpack
+from datetime import datetime
+MKTIME = datetime.utcfromtimestamp
 from .proto import HessianObjectFactory, TypedMap
 
 
@@ -43,11 +45,13 @@ class Decoder(object):
             'b': self.decode_binary,
             '\x4b': self.decode_date,
             '\x4a': self.decode_date,
+            'd': self.decode_date,  # compatible with hessian 1.0
             'V': self.decode_list,
             'S': self.decode_string,
             'M': self.decode_typed_map,
             'H': self.decode_untyped_map,
             'O': self.decode_object,
+            'o': self.decode_object_instance,
         }
 
     def decode(self, buf):
@@ -159,7 +163,13 @@ class Decoder(object):
         pass
 
     def decode_date(self, pos, buf):
-        pass
+        tag = buf[pos]; pos += 1
+        if tag == '\x4b':
+            return pos+4, MKTIME(unpack('>l', buf[pos:pos+4])[0]*60)
+        elif tag == '\x4a' or tag == 'd':
+            return pos+8, MKTIME(unpack('>q', buf[pos:pos+8])[0]/1000)
+        else:
+            raise Exception("decode date error, unknown tag: %r" % tag)
 
     def decode_list(self, pos, buf):
         tag = buf[pos]; pos += 1
@@ -267,16 +277,8 @@ class Decoder(object):
                 fields.append(field)
             self.hessian_obj_factory.create_object(_class, fields)
 
-            ret = []
             pos, obj = self.decode_object_instance(pos, buf)
-            ret.append(obj)
-            while pos+1 < len(buf) and buf[pos] == 'o':
-                pos, obj = self.decode_object_instance(pos, buf)
-                ret.append(obj)
-            if len(ret) > 1:
-                return pos, ret
-            else:
-                return pos, ret[0]
+            return pos, obj
         else:
             raise Exception("decode map error, unknown tag: %r" % tag)
 
@@ -295,8 +297,10 @@ class Decoder(object):
 
             values = []
             field_num = self.hessian_obj_factory.object_field_num(ref)
+            print '>>>>>>>>>>>>>>>>>', ref, field_num
             for i in xrange(field_num):
                 pos, value = self._decode(pos, buf)
+                print i, value
                 values.append(value)
             return pos, self.hessian_obj_factory.create_instance(ref, values)
         else:

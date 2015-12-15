@@ -189,7 +189,7 @@ class Encoder(object):
         x4b          # 32-bit UTC minute date
         '''
         if compact:
-            return pack('>cl', '\x4b', int(time.mktime(a.timetuple())) / 60)
+            return pack('>cl', '\x4b', int(time.mktime(val.timetuple())) / 60)
         else:
             return pack('>cq', '\x4a', int(time.mktime(val.timetuple())) * 1000)
 

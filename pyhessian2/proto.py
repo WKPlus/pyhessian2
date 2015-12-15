@@ -7,10 +7,13 @@ According to http://hessian.caucho.com/doc/hessian-serialization.html.
 '''
 
 import json
+from datetime import datetime
 
 
 class JsonEncoder(json.JSONEncoder):
     def default(self, o):
+        if isinstance(o, datetime):
+            return o.strftime('%Y-%m-%d %H:%M:%S')
         return o.__dict__
 
 
@@ -26,8 +29,8 @@ class HessianObject(object):
         }
 
     def __str__(self):
-        return json.dumps(self.representation(),
-                          cls=JsonEncoder, ensure_ascii=False)
+        return json.dumps(self.representation(), cls=JsonEncoder,
+                          ensure_ascii=False, indent=2)
 
 
 class TypedMap(object):
