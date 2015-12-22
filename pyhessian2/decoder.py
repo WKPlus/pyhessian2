@@ -24,6 +24,7 @@ THREE_LONG_CODE_RANGE = ('\x38', '\x3f')
 SHORT_STRING_CODE_RANGE = ('\x00', '\x1f')
 SHORT_BINARY_CODE_RANGE = ('\x00', '\x1f')
 
+
 class Decoder(object):
     def __init__(self):
         self.hessian_obj_factory = HessianObjectFactory()
@@ -41,8 +42,8 @@ class Decoder(object):
             '\x5d': self.decode_double,
             '\x5e': self.decode_double,
             '\x5f': self.decode_double,
-            'B': self.decode_binary,
-            'b': self.decode_binary,
+            #'B': self.decode_binary,
+            #'b': self.decode_binary,
             '\x4b': self.decode_date,
             '\x4a': self.decode_date,
             'd': self.decode_date,  # compatible with hessian 1.0
@@ -52,7 +53,13 @@ class Decoder(object):
             'H': self.decode_untyped_map,
             'O': self.decode_object,
             'o': self.decode_object_instance,
+            '\x51': self.decode_ref,
         }
+
+    def _set_decoder(self, byte_code, decoder_name):
+        if not hasattr(self, decoder_name):
+            raise Exception('Unknown decoder name: %s' % decoder_name)
+        self.decoders[byte_code] = getattr(self, decoder_name)
 
     def decode(self, buf):
         return self._decode(0, buf)[1]
@@ -126,8 +133,10 @@ class Decoder(object):
             return pos+2, ((ord(tag) - 0xc8) << 8) + ord(buf[pos+1])
         elif THREE_INT_CODE_RANGE[0] <= tag <= THREE_INT_CODE_RANGE[1]:
             return pos+3, ((ord(tag)-0xd4)<<16) + (ord(buf[pos+1])<<8) + ord(buf[pos+2])
-        else:  # tag == 'I'
+        elif tag == 'I':
             return pos+5, unpack('>l', buf[pos+1:pos+5])[0]
+        else:
+            raise Exception("decode int error, unknown tag: %r" % tag)
 
     def decode_long(self, pos, buf):
         tag = buf[pos]
@@ -139,8 +148,10 @@ class Decoder(object):
             return pos+3, ((ord(tag)-0x3c)<<16) + (ord(buf[pos+1])<<8) + ord(buf[pos+2])
         elif tag == 'Y':
             return pos+5, unpack('>l', buf[pos+1:pos+5])[0]
-        else:  # tag == 'L'
+        elif tag == 'L':
             return pos+9, unpack('>q', buf[pos+1:pos+9])[0]
+        else:
+            raise Exception("decode long error, unknown tag: %r" % tag)
 
     def decode_double(self, pos, buf):
         tag = buf[pos]
@@ -154,8 +165,10 @@ class Decoder(object):
             return pos+3, float(unpack('>h', buf[pos+1:pos+3])[0])
         elif tag == '\x5f':
             return pos+5, unpack('>f', buf[pos+1:pos+5])[0]
-        else:  # tag == 'D'
+        elif tag == 'D':
             return pos+9, unpack('>d', buf[pos+1:pos+9])[0]
+        else:
+            raise Exception("decode double error, unknown tag: %r" % tag)
 
     def decode_binary(self, pos, buf):
         tag = buf[pos]
@@ -236,8 +249,7 @@ class Decoder(object):
             raise Exception("decode string error, unknown tag: %r" % tag)
 
     def decode_untyped_map(self, pos, buf):
-        tag = buf[pos]
-        pos += 1
+        tag = buf[pos]; pos += 1
         ret = {}
         if tag == 'H':
             while buf[pos] != 'z':
@@ -249,8 +261,7 @@ class Decoder(object):
             raise Exception("decode untyped map error, unknown tag: %r" % tag)
 
     def decode_typed_map(self, pos, buf):
-        tag = buf[pos]
-        pos += 1
+        tag = buf[pos]; pos += 1
         ret = {}
         if tag == 'M':
             pos, _type = self.decode_string(pos, buf)
@@ -265,8 +276,7 @@ class Decoder(object):
             raise Exception("decode map error, unknown tag: %r" % tag)
 
     def decode_object(self, pos, buf):
-        tag = buf[pos]
-        pos += 1
+        tag = buf[pos]; pos += 1
         if tag == 'O':
             pos, _class = self.decode_string(pos, buf)
             pos, field_num = self.decode_int(pos, buf)
@@ -282,23 +292,36 @@ class Decoder(object):
             raise Exception("decode map error, unknown tag: %r" % tag)
 
     def decode_object_instance(self, pos, buf):
-        tag = buf[pos]
-        pos += 1
+        tag = buf[pos]; pos += 1
         ret = []
         if tag == 'o':
+            self._refs.append(None)  # occupy the position
+            ref_id = len(self._refs) - 1   # record the position
             # decode ref id
             tag = buf[pos]
+            ref = 0
             if self.is_int(tag):
                 pos, ref = self.decode_int(pos, buf)
-            else:
-                # decode short form object
-                ref = 0
 
             values = []
             field_num = self.hessian_obj_factory.object_field_num(ref)
             for i in xrange(field_num):
                 pos, value = self._decode(pos, buf)
                 values.append(value)
-            return pos, self.hessian_obj_factory.create_instance(ref, values)
+            obj = self.hessian_obj_factory.create_instance(ref, values)
+            self._refs[ref_id] = obj
+            return pos, obj
         else:
             raise Exception("decode map error, unknown tag: %r" % tag)
+
+    def decode_ref(self, pos, buf):
+        tag = buf[pos]; pos += 1
+        if tag == '\x51':
+            pos, ref = self.decode_int(pos, buf)
+        elif tag == '\x4a':
+            ref = ord(buf[pos]); pos += 1
+        elif tag == '\x4b':
+            ref = (ord(buf[pos]) << 8) + ord(buf[pos+1]); pos += 2
+        else:
+            raise Exception("decode ref error, unknown tag: %r" % tag)
+        return pos, self._refs[ref]

@@ -96,13 +96,13 @@ class Encoder(object):
         return self.encoders[_type](val)
 
     def encode_ref(self, val):
-        # TODO: reference mark is 'Q' or 'R'? Use 'R'
+        # TODO: reference mark is 'Q' or 'R'? Use 'Q'
         '''
         x51          # reference to map/list/object - integer ('Q')
         '''
         _id = id(val)
         if _id in self._refs:
-            return 'R' + self.encode_int(self._refs.index(_id))
+            return 'Q' + self.encode_int(self._refs.index(_id))
         self._refs.append(_id)
 
     def encode_null(self, val):
@@ -320,6 +320,9 @@ class Encoder(object):
         return len(self._classes) - 1, data
 
     def encode_object(self, val):
+        ret = self.encode_ref(val)
+        if ret:
+            return ret
         ref_id, data = self.encode_object_class(val)
         data.append('o')
         attrs = val.attrs
