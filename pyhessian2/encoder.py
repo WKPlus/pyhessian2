@@ -266,16 +266,16 @@ class Encoder(object):
         ret = self.encode_ref(val)
         if ret:
             return ret
-        length = len(val)
-        data = []
-        if length <= 0xff:
-            data.append(pack('>2cB', 'V', 'n', length))
-        else:
-            data.append(pack('>2cH', 'V', 'l', length))
+        return self.encode_typed_fixed_list(val)
 
+    def encode_typed_fixed_list(self, val):
+        data = []
+        data.append('V')
+        _type = '[' + type(val[0]).__name__
+        data.append(self.encode_string(_type))
+        data.append(self.encode_int(len(val)))
         for v in val:
             data.append(self.encode(v))
-        data.append('z')
         return "".join(data)
 
     def encode_untyped_map(self, val):
