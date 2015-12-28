@@ -187,14 +187,20 @@ class Decoder(object):
     def decode_list(self, pos, buf):
         tag = buf[pos]; pos += 1
         if tag == 'V':
-            len_tag = buf[pos]; pos += 1
-            if len_tag == 'n':
+            tag = buf[pos]; pos += 1
+            if tag == 't':
+                type_length = (ord(buf[pos]) << 8) + ord(buf[pos+1]); pos += 2
+                _type = buf[pos:(pos+type_length)]; pos += type_length
+                tag = buf[pos]; pos += 1
+
+            if tag == 'n':
                 length = unpack('>B', buf[pos])[0]; pos += 1
-            elif len_tag == 'l':
+            elif tag == 'l':
                 length = unpack('>H', buf[pos: pos+2])[0]; pos += 2
             else:
                 raise Exception(
-                    "decode list length error, unknown tag: %r" % len_tag)
+                    "decode list length error, unknown tag: %r" % tag)
+
             ret = []
             for i in xrange(length):
                 pos, obj = self._decode(pos, buf)
