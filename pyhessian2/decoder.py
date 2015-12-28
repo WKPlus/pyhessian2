@@ -44,8 +44,8 @@ class Decoder(object):
             '\x5f': self.decode_double,
             #'B': self.decode_binary,
             #'b': self.decode_binary,
-            '\x4b': self.decode_date,
-            '\x4a': self.decode_date,
+            '\x4b': self.decode_ref,
+            '\x4a': self.decode_ref,
             'd': self.decode_date,  # compatible with hessian 1.0
             'V': self.decode_list,
             'S': self.decode_string,
