@@ -183,15 +183,8 @@ class Encoder(object):
         except OverflowError:
             return pack('>cd', 'D', val)
 
-    def encode_date(self, val, compact=False):
-        '''
-        x4a          # 64-bit UTC millisecond date
-        x4b          # 32-bit UTC minute date
-        '''
-        if compact:
-            return pack('>cl', '\x4b', int(time.mktime(val.timetuple())) / 60)
-        else:
-            return pack('>cq', '\x4a', int(time.mktime(val.timetuple())) * 1000)
+    def encode_date(self, val):
+        return pack('>cq', 'd', int(time.mktime(val.timetuple())) * 1000)
 
     def encode_binary(self, val):
         # TODO: non-final chunk mark is 'A' or 'b'? Use 'b'
