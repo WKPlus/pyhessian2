@@ -257,16 +257,17 @@ class Decoder(object):
     def decode_untyped_map(self, pos, buf):
         tag = buf[pos]; pos += 1
         ret = {}
-        if tag == 'H':
+        if tag == 'H' or tag == 'M':
             while buf[pos] != 'z':
-                pos, key = self._decode(self, pos, buf)
-                pos, value = self._decode(self, pos, buf)
+                pos, key = self._decode(pos, buf)
+                pos, value = self._decode(pos, buf)
                 ret[key] = value
             return pos+1, ret
         else:
             raise Exception("decode untyped map error, unknown tag: %r" % tag)
 
     def decode_typed_map(self, pos, buf):
+        return self.decode_untyped_map(pos, buf)
         tag = buf[pos]; pos += 1
         ret = {}
         if tag == 'M':
