@@ -247,8 +247,8 @@ class Decoder(object):
         ret = {}
         if tag == 'H':
             while buf[pos] != 'z':
-                pos, key = self._decode(self, pos, buf)
-                pos, value = self._decode(self, pos, buf)
+                pos, key = self._decode(pos, buf)
+                pos, value = self._decode(pos, buf)
                 ret[key] = value
             return pos+1, ret
         else:
