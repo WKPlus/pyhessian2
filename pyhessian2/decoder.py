@@ -33,7 +33,7 @@ class Decoder(object):
             'N': self.decode_null,
             'T': self.decode_bool,
             'F': self.decode_bool,
-            'I': self.decode_int,
+            'w': self.decode_int,
             'Y': self.decode_long,
             'L': self.decode_long,
             'D': self.decode_double,
@@ -133,7 +133,7 @@ class Decoder(object):
             return pos+2, ((ord(tag) - 0xc8) << 8) + ord(buf[pos+1])
         elif THREE_INT_CODE_RANGE[0] <= tag <= THREE_INT_CODE_RANGE[1]:
             return pos+3, ((ord(tag)-0xd4)<<16) + (ord(buf[pos+1])<<8) + ord(buf[pos+2])
-        elif tag == 'I':
+        elif tag == 'w':
             return pos+5, unpack('>l', buf[pos+1:pos+5])[0]
         else:
             raise Exception("decode int error, unknown tag: %r" % tag)
