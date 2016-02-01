@@ -128,7 +128,7 @@ class Encoder(object):
             # b2 = b2 + 0xd4, b1 = b1, b0 = b0
             return chr((val>>16) + 0xd4) + chr((val>>8)&0xff) + chr(val&0xff)
         else:
-            return pack('>cl', 'w', val)
+            return pack('>cl', 'I', val)
 
     def encode_long(self, val):
         '''
