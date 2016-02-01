@@ -59,7 +59,7 @@ import types
 from .proto import HessianObject, TypedMap
 
 
-ONE_OCTET_INT_RANGE = (-0x10, 0x3f)
+ONE_OCTET_INT_RANGE = (-0x10, 0x2f)
 TWO_OCTET_INT_RANGE = (-0x800, 0x7ff)
 THREE_OCTET_INT_RANGE = (-0x40000, 0x3ffff)
 

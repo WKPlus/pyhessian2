@@ -12,7 +12,7 @@ MKTIME = datetime.utcfromtimestamp
 from .proto import HessianObjectFactory, TypedMap
 
 
-ONE_INT_CODE_RANGE = ('\x80', '\xbf')
+ONE_INT_CODE_RANGE = ('\x80', '\xaf')
 TWO_INT_CODE_RANGE = ('\xc0', '\xcf')
 THREE_INT_CODE_RANGE = ('\xd0', '\xd7')
 
