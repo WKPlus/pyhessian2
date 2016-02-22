@@ -142,15 +142,15 @@ class Decoder(object):
     def decode_long(self, pos, buf):
         tag = buf[pos]
         if ONE_LONG_CODE_RANGE[0] <= tag <= ONE_LONG_CODE_RANGE[1]:
-            return pos+1, ord(tag) - 0xe0
+            return pos+1, long(ord(tag) - 0xe0)
         elif TWO_LONG_CODE_RANGE[0] <= tag <= TWO_LONG_CODE_RANGE[1]:
-            return pos+2, ((ord(tag)-0xf8)<<8) + ord(buf[pos+1])
+            return pos+2, long(((ord(tag)-0xf8)<<8) + ord(buf[pos+1]))
         elif THREE_LONG_CODE_RANGE[0] <= tag <= THREE_LONG_CODE_RANGE[1]:
-            return pos+3, ((ord(tag)-0x3c)<<16) + (ord(buf[pos+1])<<8) + ord(buf[pos+2])
+            return pos+3, long(((ord(tag)-0x3c)<<16) + (ord(buf[pos+1])<<8) + ord(buf[pos+2]))
         elif tag == 'Y':
-            return pos+5, unpack('>l', buf[pos+1:pos+5])[0]
+            return pos+5, long(unpack('>l', buf[pos+1:pos+5])[0])
         elif tag == 'L':
-            return pos+9, unpack('>q', buf[pos+1:pos+9])[0]
+            return pos+9, long(unpack('>q', buf[pos+1:pos+9])[0])
         else:
             raise Exception("decode long error, unknown tag: %r" % tag)
 
