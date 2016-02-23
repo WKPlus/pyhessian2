@@ -55,6 +55,7 @@ Hessian Bytecode map:
 
 from struct import pack
 import datetime
+import time
 import types
 from .proto import HessianObject, TypedMap
 
@@ -96,13 +97,19 @@ class Encoder(object):
         return self.encoders[_type](val)
 
     def encode_ref(self, val):
-        # TODO: reference mark is 'Q' or 'R'? Use 'Q'
+        # TODO: reference mark is 'Q' or 'R'? Use 'J' for 3.1.5
         '''
         x51          # reference to map/list/object - integer ('Q')
         '''
         _id = id(val)
         if _id in self._refs:
-            return 'Q' + self.encode_int(self._refs.index(_id))
+            ref_id = self._refs.index(_id)
+            if ref_id <= 255:
+                return '\x4a' + pack('>l', ref_id)[-1]
+            elif ref_id <= 65535:
+                return '\x4b' + pack('>l', ref_id)[-2:]
+            else:
+                raise Exception("Reference id too large: %d" % ref_id)
         self._refs.append(_id)
 
     def encode_null(self, val):

@@ -188,6 +188,8 @@ class Decoder(object):
     def decode_list(self, pos, buf):
         tag = buf[pos]; pos += 1
         if tag == 'V':
+            self._refs.append(None)  # occupy the position
+            ref_id = len(self._refs) - 1   # record the position
             tag = buf[pos]; pos += 1
             if tag == 't':
                 type_length = (ord(buf[pos]) << 8) + ord(buf[pos+1]); pos += 2
@@ -207,6 +209,7 @@ class Decoder(object):
                 pos, obj = self._decode(pos, buf)
                 ret.append(obj)
             assert buf[pos] == 'z'; pos += 1
+            self._refs[ref_id] = ret
             return pos, ret
         else:
             raise Exception("decode list error, unknown tag: %r" % tag)
