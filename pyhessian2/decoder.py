@@ -12,7 +12,9 @@ MKTIME = datetime.utcfromtimestamp
 from .proto import HessianObjectFactory, TypedMap
 
 
-ONE_INT_CODE_RANGE = ('\x80', '\xaf')
+ONE_INT_CODE_RANGE = ('\x80', '\xbf')
+# encoder use x80~xaf to represents -x10~x2f
+# but decoder have to be able to accept x80~xbf as -x10~x3f, WTF
 TWO_INT_CODE_RANGE = ('\xc0', '\xcf')
 THREE_INT_CODE_RANGE = ('\xd0', '\xd7')
 
