@@ -134,8 +134,11 @@ class Encoder(object):
             # value = ((code - 0xd4) << 16) + (b1 << 8) + b0;
             # b2 = b2 + 0xd4, b1 = b1, b0 = b0
             return chr((val>>16) + 0xd4) + chr((val>>8)&0xff) + chr(val&0xff)
-        else:
+        elif (-2**31) <= val <= (2**31-1):
             return pack('>cl', 'I', val)
+        else:
+            # if a python int value is not in 32 bits range, encode it as long
+            return pack('>cq', 'L', val)
 
     def encode_long(self, val):
         '''
