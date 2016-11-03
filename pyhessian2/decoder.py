@@ -51,6 +51,7 @@ class Decoder(object):
             '\x4a': self.decode_ref,
             'd': self.decode_date,  # compatible with hessian 1.0
             'V': self.decode_list,
+            'v': self.decode_list_ref,
             'S': self.decode_string,
             'M': self.decode_typed_map,
             'H': self.decode_untyped_map,
@@ -212,6 +213,16 @@ class Decoder(object):
                 ret.append(obj)
             assert buf[pos] == 'z'; pos += 1
             self._refs[ref_id] = ret
+            return pos, ret
+        else:
+            raise Exception("decode list error, unknown tag: %r" % tag)
+
+    def decode_list_ref(self, pos, buf):
+        tag = buf[pos]; pos += 1
+        if tag == 'v':
+            pos, ref_id = self.decode_int(pos, buf)
+            pos, length = self.decode_int(pos, buf)
+            ret = self._refs[ref_id]
             return pos, ret
         else:
             raise Exception("decode list error, unknown tag: %r" % tag)
