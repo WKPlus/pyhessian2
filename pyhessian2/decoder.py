@@ -9,7 +9,7 @@ According to http://hessian.caucho.com/doc/hessian-serialization.html.
 from struct import unpack
 from datetime import datetime
 MKTIME = datetime.utcfromtimestamp
-from .proto import HessianObjectFactory, TypedMap
+from .proto import HessianObjectFactory, TypedMap, DoubleType
 
 
 ONE_INT_CODE_RANGE = ('\x80', '\xbf')
@@ -170,7 +170,7 @@ class Decoder(object):
         elif tag == '\x5f':
             return pos+5, unpack('>f', buf[pos+1:pos+5])[0]
         elif tag == 'D':
-            return pos+9, unpack('>d', buf[pos+1:pos+9])[0]
+            return pos+9, DoubleType(unpack('>d', buf[pos+1:pos+9])[0])
         else:
             raise Exception("decode double error, unknown tag: %r" % tag)
 

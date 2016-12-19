@@ -57,7 +57,7 @@ from struct import pack
 import datetime
 import time
 import types
-from .proto import HessianObject, TypedMap
+from .proto import HessianObject, TypedMap, DoubleType
 
 
 ONE_OCTET_INT_RANGE = (-0x10, 0x2f)
@@ -80,7 +80,8 @@ class Encoder(object):
             datetime.datetime: self.encode_date,
             types.IntType: self.encode_int,
             types.LongType: self.encode_long,
-            types.FloatType: self.encode_double,
+            types.FloatType: self.encode_float,
+            DoubleType: self.encode_double,
             types.ListType: self.encode_list,
             types.TupleType: self.encode_list,
             types.StringType: self.encode_string,
@@ -167,7 +168,7 @@ class Encoder(object):
         else:
             return pack('>cq', 'L', val)
 
-    def encode_double(self, val):
+    def encode_float(self, val):
         '''
         x44          # 64-bit IEEE encoded double ('D')
         x5b          # double 0.0
@@ -192,6 +193,30 @@ class Encoder(object):
             return pack('>cf', '\x5f', val)
         except OverflowError:
             return pack('>cd', 'D', val)
+
+    def encode_double(self, val):
+        '''
+        x44          # 64-bit IEEE encoded double ('D')
+        x5b          # double 0.0
+        x5c          # double 1.0
+        x5d          # double represented as byte (-128.0 to 127.0)
+        x5e          # double represented as short (-32768.0 to 32767.0)
+        x5f          # double represented as float
+        '''
+        val = val.value
+        if val == 0.0:
+            return '\x5b'
+        elif val == 1.0:
+            return '\x5c'
+
+        if val.is_integer():
+            _v = int(self, val)
+            if -128 <= _v <= 127:
+                return pack('>cb', '\x5d', _v)
+            elif -32768 <= _v <= 32767:
+                return pack('>ch', '\x5e', _v)
+
+        return pack('>cd', 'D', val)
 
     def encode_date(self, val):
         return pack('>cq', 'd', int(time.mktime(val.timetuple())) * 1000)

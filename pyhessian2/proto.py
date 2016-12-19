@@ -39,6 +39,12 @@ class TypedMap(object):
         self.val = val
 
 
+class DoubleType(object):
+    def __init__(self, val):
+        self._class = 'double'
+        self.value = val
+
+
 class HessianObjectFactory(object):
     def __init__(self):
         self.objects = []
