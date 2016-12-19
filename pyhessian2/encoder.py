@@ -164,7 +164,7 @@ class Encoder(object):
             return chr((val>>16) + 0x3c) + chr((val>>8)&0xff) + chr(val&0xff)
         elif FOUR_OCTET_LONG_RANGE[0] <= val <= FOUR_OCTET_LONG_RANGE[1]:
             # value = (b3 << 24) + (b2 << 16) + (b1 << 8) + b0
-            return pack('>cl', '\x59', val)
+            return pack('>cl', '\x77', val)
         else:
             return pack('>cq', 'L', val)
 
@@ -299,7 +299,7 @@ class Encoder(object):
         if length <= 0xff:
             data.append(pack('>2cB', 'V', 'n', length))
         else:
-            data.append(pack('>2cH', 'V', 'l', length))
+            data.append(pack('>2cl', 'V', 'l', length))
 
         for v in val:
             data.append(self.encode(v))
