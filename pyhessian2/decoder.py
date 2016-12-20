@@ -41,11 +41,11 @@ class Decoder(object):
             'Y': self.decode_long,
             'L': self.decode_long,
             'D': self.decode_double,
-            '\x5b': self.decode_double,
-            '\x5c': self.decode_double,
-            '\x5d': self.decode_double,
-            '\x5e': self.decode_double,
-            '\x5f': self.decode_double,
+            '\x67': self.decode_double,
+            '\x68': self.decode_double,
+            '\x69': self.decode_double,
+            '\x6a': self.decode_double,
+            '\x6b': self.decode_double,
             #'B': self.decode_binary,
             #'b': self.decode_binary,
             '\x4b': self.decode_ref,
@@ -160,15 +160,15 @@ class Decoder(object):
 
     def decode_double(self, pos, buf):
         tag = buf[pos]
-        if tag == '\x5b':
+        if tag == '\x67':
             return pos+1, 0.0
-        elif tag == '\x5c':
+        elif tag == '\x68':
             return pos+1, 1.0
-        elif tag == '\x5d':
+        elif tag == '\x69':
             return pos+2, float(unpack('>b', buf[pos+1])[0])
-        elif tag == '\x5e':
+        elif tag == '\x6a':
             return pos+3, float(unpack('>h', buf[pos+1:pos+3])[0])
-        elif tag == '\x5f':
+        elif tag == '\x6b':
             return pos+5, unpack('>f', buf[pos+1:pos+5])[0]
         elif tag == 'D':
             return pos+9, DoubleType(unpack('>d', buf[pos+1:pos+9])[0])
@@ -205,7 +205,7 @@ class Decoder(object):
             if tag == 'n':
                 length = unpack('>B', buf[pos])[0]; pos += 1
             elif tag == 'l':
-                length = unpack('>H', buf[pos: pos+2])[0]; pos += 2
+                length = unpack('>l', buf[pos: pos+4])[0]; pos += 4
             else:
                 raise Exception(
                     "decode list length error, unknown tag: %r" % tag)

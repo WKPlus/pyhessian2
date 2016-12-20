@@ -205,16 +205,16 @@ class Encoder(object):
         '''
         val = val.value
         if val == 0.0:
-            return '\x5b'
+            return '\x67'
         elif val == 1.0:
-            return '\x5c'
+            return '\x68'
 
         if val.is_integer():
             _v = int(self, val)
             if -128 <= _v <= 127:
-                return pack('>cb', '\x5d', _v)
+                return pack('>cb', '\x69', _v)
             elif -32768 <= _v <= 32767:
-                return pack('>ch', '\x5e', _v)
+                return pack('>ch', '\x6a', _v)
 
         return pack('>cd', 'D', val)
 
