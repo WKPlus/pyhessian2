@@ -31,6 +31,7 @@ class Decoder(object):
     def __init__(self):
         self.hessian_obj_factory = HessianObjectFactory()
         self._refs = []
+        self._type_refs = []
         self.decoders = {
             'N': self.decode_null,
             'T': self.decode_bool,
@@ -197,7 +198,9 @@ class Decoder(object):
             if tag == 't':
                 type_length = (ord(buf[pos]) << 8) + ord(buf[pos+1]); pos += 2
                 _type = buf[pos:(pos+type_length)]; pos += type_length
+                self._type_refs.append(_type)
                 tag = buf[pos]; pos += 1
+                #length = ord(buf[pos]); pos += 1
 
             if tag == 'n':
                 length = unpack('>B', buf[pos])[0]; pos += 1
@@ -220,9 +223,13 @@ class Decoder(object):
     def decode_list_ref(self, pos, buf):
         tag = buf[pos]; pos += 1
         if tag == 'v':
+            ret = []
             pos, ref_id = self.decode_int(pos, buf)
             pos, length = self.decode_int(pos, buf)
-            ret = self._refs[ref_id]
+            _type = self._type_refs[ref_id]
+            for i in xrange(length):
+                pos, obj = self._decode(pos, buf)
+                ret.append(obj)
             return pos, ret
         else:
             raise Exception("decode list error, unknown tag: %r" % tag)
