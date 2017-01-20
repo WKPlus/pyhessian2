@@ -89,6 +89,7 @@ class Encoder(object):
             types.DictType: self.encode_untyped_map,
             TypedMap: self.encode_typed_map,
             HessianObject: self.encode_object,
+            set: self.encode_set
         }
 
     def encode(self, val):
@@ -301,6 +302,24 @@ class Encoder(object):
         else:
             data.append(pack('>2cl', 'V', 'l', length))
 
+        for v in val:
+            data.append(self.encode(v))
+        data.append('z')
+        return "".join(data)
+
+    def encode_set(self, val):
+        ret = self.encode_ref(val)
+        if ret:
+            return ret
+        length = len(val)
+        data = []
+        data.append(pack('2c', 'V', 't'))
+        data.append(pack('h', len("java.util.HashSet")))
+        data.append("java.util.HashSet")
+        if length <= 0xff:
+            data.append(pack('>cB', 'n', length))
+        else:
+            data.append(pack('>cl', 'l', length))
         for v in val:
             data.append(self.encode(v))
         data.append('z')
