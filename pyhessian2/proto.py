@@ -62,3 +62,10 @@ class HessianObjectFactory(object):
         _class = self.objects[ref]
         val = dict(zip(self.object_fields[_class], values))
         return HessianObject(_class, val)
+
+
+# TODO:add set type in java
+# class SetType(object):
+#     def __init__(self, _type, val):
+#         self._type = _type
+#         self.value = val
