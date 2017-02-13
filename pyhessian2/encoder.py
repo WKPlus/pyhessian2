@@ -184,7 +184,7 @@ class Encoder(object):
             return '\x5c'
 
         if val.is_integer():
-            _v = int(self, val)
+            _v = int(val)
             if -128 <= _v <= 127:
                 return pack('>cb', '\x5d', _v)
             elif -32768 <= _v <= 32767:
@@ -211,7 +211,7 @@ class Encoder(object):
             return '\x68'
 
         if val.is_integer():
-            _v = int(self, val)
+            _v = int(val)
             if -128 <= _v <= 127:
                 return pack('>cb', '\x69', _v)
             elif -32768 <= _v <= 32767:
@@ -314,7 +314,7 @@ class Encoder(object):
         length = len(val)
         data = []
         data.append(pack('2c', 'V', 't'))
-        data.append(pack('h', len("java.util.HashSet")))
+        data.append(pack('>H', len("java.util.HashSet")))
         data.append("java.util.HashSet")
         if length <= 0xff:
             data.append(pack('>cB', 'n', length))

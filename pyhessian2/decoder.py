@@ -291,11 +291,15 @@ class Decoder(object):
             raise Exception("decode untyped map error, unknown tag: %r" % tag)
 
     def decode_typed_map(self, pos, buf):
-        return self.decode_untyped_map(pos, buf)
+        # return self.decode_untyped_map(pos, buf)
         tag = buf[pos]; pos += 1
         ret = {}
         if tag == 'M':
-            pos, _type = self.decode_string(pos, buf)
+            if buf[pos] == "t":
+                pos += 1
+            pos, length = self.read_characters(pos, buf, 2)
+            t_length = unpack('>h', length)[0]
+            pos, _type = self.read_characters(pos, buf, t_length)
             ret['type'] = _type
             ret['body'] = {}
             while buf[pos] != 'z':
