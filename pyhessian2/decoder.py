@@ -297,15 +297,18 @@ class Decoder(object):
         if tag == 'M':
             if buf[pos] == "t":
                 pos += 1
-            pos, length = self.read_characters(pos, buf, 2)
-            t_length = unpack('>h', length)[0]
-            pos, _type = self.read_characters(pos, buf, t_length)
-            ret['type'] = _type
-            ret['body'] = {}
+                pos, length = self.read_characters(pos, buf, 2)
+                t_length = unpack('>h', length)[0]
+                pos, _type = self.read_characters(pos, buf, t_length)
+                ret['type'] = _type
+                ret['body'] = {}
+                key_values = ret['body']
+            else:
+                key_values = ret
             while buf[pos] != 'z':
                 pos, key = self._decode(pos, buf)
                 pos, value = self._decode(pos, buf)
-                ret['body'][key] = value
+                key_values[key] = value
             return pos+1, ret
         else:
             raise Exception("decode map error, unknown tag: %r" % tag)
@@ -360,3 +363,4 @@ class Decoder(object):
         else:
             raise Exception("decode ref error, unknown tag: %r" % tag)
         return pos, self._refs[ref]
+
