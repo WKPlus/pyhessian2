@@ -201,6 +201,11 @@ class Decoder(object):
                 self._type_refs.append(_type)
                 tag = buf[pos]; pos += 1
                 #length = ord(buf[pos]); pos += 1
+            elif tag == 'u':
+                pos += 1
+                pos, ref_id = self.decode_int(pos, buf)
+                _type = self._type_refs[ref_id]
+                tag = buf[pos]; pos += 1
 
             if tag == 'n':
                 length = unpack('>B', buf[pos])[0]; pos += 1
