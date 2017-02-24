@@ -291,24 +291,26 @@ class Decoder(object):
             raise Exception("decode untyped map error, unknown tag: %r" % tag)
 
     def decode_typed_map(self, pos, buf):
-        # return self.decode_untyped_map(pos, buf)
         tag = buf[pos]; pos += 1
         ret = {}
         if tag == 'M':
-            if buf[pos] == "t":
+            if buf[pos] == 'u':
+                pos += 1
+                pos, ref_id = self.decode_int(pos, buf)
+                _type = self._type_refs[ref_id]
+            elif buf[pos] == "t":
                 pos += 1
                 pos, length = self.read_characters(pos, buf, 2)
                 t_length = unpack('>h', length)[0]
                 pos, _type = self.read_characters(pos, buf, t_length)
-                ret['type'] = _type
-                ret['body'] = {}
-                key_values = ret['body']
+                self._type_refs.append(_type)
             else:
-                key_values = ret
+                _type = ""
             while buf[pos] != 'z':
                 pos, key = self._decode(pos, buf)
                 pos, value = self._decode(pos, buf)
-                key_values[key] = value
+                ret[key] = value
+            ret = TypedMap(_type, ret)
             return pos+1, ret
         else:
             raise Exception("decode map error, unknown tag: %r" % tag)

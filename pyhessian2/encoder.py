@@ -344,7 +344,15 @@ class Encoder(object):
         _type, val= val._type, val.val
         data = []
         data.append('M')
-        data.append(self.encode(_type))
+        data.append('t')
+
+        if isinstance(_type, unicode):
+            length = len(_type)
+            _type = _type.encode('utf8')
+        elif isinstance(_type, str):
+            length = len(_type.decode('utf8'))
+        data.append(pack('>h', length))
+        data.append(_type)
         for k, v in val.iteritems():
             data.append(self.encode(k))
             data.append(self.encode(v))
