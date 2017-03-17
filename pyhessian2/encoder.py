@@ -74,6 +74,7 @@ class Encoder(object):
     def __init__(self):
         self._refs = []
         self._classes = []
+        self._classes_attrs = {}
         self.encoders = {
             types.NoneType: self.encode_null,
             types.BooleanType: self.encode_bool,
@@ -369,6 +370,7 @@ class Encoder(object):
         data.append(self.encode_string(_class))
         length = len(attrs)
         data.append(self.encode_int(length))
+        self._classes_attrs[_class] = attrs.keys()
         for k in attrs.iterkeys():
             data.append(self.encode_string(k))
         self._classes.append(_class)
@@ -382,6 +384,6 @@ class Encoder(object):
         data.append('o')
         attrs = val.attrs
         data.append(self.encode_int(ref_id))
-        for v in attrs.itervalues():
-            data.append(self.encode(v))
+        for key in self._classes_attrs[val._class]:
+            data.append(self.encode(attrs[key]))
         return "".join(data)
