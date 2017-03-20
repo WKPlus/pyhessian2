@@ -11,12 +11,12 @@ Note, there are some significant differences between the master and 3.1.5 branch
       * published to pypi with version 1.0.0+
 
 
-##Usage
+## Usage
 
-###Encoding
+### Encoding
 ----
 
-```
+```python
 from pyhessian2 import HessianObject, Encoder
 attrs = {
     "name": "xx",
@@ -28,10 +28,10 @@ print "%r" % data
 ```
 
 
-###Decoding
+### Decoding
 ----
 
-```
+```python
 from pyhessian2 import Decoder
 data = ...  # a hessian bytes data
 obj = Decoder().decoder(data)  # get a Hessianobject instance
