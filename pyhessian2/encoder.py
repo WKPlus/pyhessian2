@@ -372,7 +372,7 @@ class Encoder(object):
         data.append(self.encode_int(length))
         self._classes_attrs[_class] = attrs.keys()
         for k in attrs.iterkeys():
-            data.append(self.encode_string(k))
+            data.append(self.encode(k))
         self._classes.append(_class)
         return len(self._classes) - 1, data
 
